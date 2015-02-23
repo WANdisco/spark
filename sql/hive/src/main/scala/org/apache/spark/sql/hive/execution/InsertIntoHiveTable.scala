@@ -237,14 +237,17 @@ case class InsertIntoHiveTable(
           overwrite,
           holdDDLTime,
           inheritTableSpecs,
-          isSkewedStoreAsSubdir)
+          isSkewedStoreAsSubdir,
+          false)
       }
     } else {
       db.loadTable(
         outputPath,
         qualifiedTableName,
         overwrite,
-        holdDDLTime)
+        holdDDLTime,
+        false,
+        false)
     }
 
     // Invalidate the cache.
