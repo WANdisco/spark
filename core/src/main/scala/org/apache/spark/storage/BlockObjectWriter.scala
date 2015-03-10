@@ -17,7 +17,7 @@
 
 package org.apache.spark.storage
 
-import java.io.{BufferedOutputStream, FileOutputStream, File, OutputStream}
+import java.io._
 import java.nio.channels.FileChannel
 
 import org.apache.spark.Logging
@@ -113,7 +113,14 @@ private[spark] class DiskBlockObjectWriter(
   private var _timeWriting = 0L
 
   override def open(): BlockObjectWriter = {
-    fos = new FileOutputStream(file, true)
+    try {
+      fos = new FileOutputStream(file, true)
+    } catch {
+      case _: FileNotFoundException => {
+        file.getParentFile().mkdirs()
+        fos = new FileOutputStream(file, true)
+      }
+    }
     ts = new TimeTrackingOutputStream(fos)
     channel = fos.getChannel()
     lastValidPosition = initialPosition
