@@ -262,7 +262,18 @@ private[spark] object Utils extends Logging {
         dir = new File(root, "spark-" + UUID.randomUUID.toString)
         if (dir.exists() || !dir.mkdirs()) {
           dir = null
-        }
+        } else {
+		  	val sw = new StringWriter
+		  	try {
+		  		throw new IOException("create temp dir")
+		  	} catch {
+		  		case e: Exception => {
+		  			e.printStackTrace(new PrintWriter(sw))
+		  			logInfo("createTempDir: " + dir)
+			  		logInfo("Stacktrace: " + sw.toString)
+			  	}
+		  	}
+		}
       } catch { case e: IOException => ; }
     }
 
@@ -587,6 +598,16 @@ private[spark] object Utils extends Logging {
    * Don't follow directories if they are symlinks.
    */
   def deleteRecursively(file: File) {
+  	val sw = new StringWriter
+  	try {
+  		throw new IOException("delete recursively")
+  	} catch {
+  		case e: Exception => {
+  			e.printStackTrace(new PrintWriter(sw))
+	  		logInfo("Delete recursively: " + file)
+	  		logInfo("Stacktrace: " + sw.toString)
+	  	}
+  	}
     if (file != null) {
       if ((file.isDirectory) && !isSymlink(file)) {
         for (child <- listFilesSafely(file)) {
