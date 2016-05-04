@@ -482,7 +482,8 @@ private[hive] class ClientWrapper(
    * in the sequence is one row.
    */
   protected def runHive(cmd: String, maxRows: Int = 1000): Seq[String] = withHiveState {
-    logDebug(s"Running hiveql '$cmd'")
+    val hash = conf.hashCode()
+    logDebug(s"Running hiveql '$cmd' $hash $conf")
     if (cmd.toLowerCase.startsWith("set")) { logDebug(s"Changing config: $cmd") }
     try {
       val cmd_trimmed: String = cmd.trim()
@@ -495,12 +496,14 @@ private[hive] class ClientWrapper(
           val response: CommandProcessorResponse = driver.run(cmd)
           // Throw an exception if there is an error in query processing.
           if (response.getResponseCode != 0) {
+            CommandProcessorFactory.clean(conf)
             driver.close()
             throw new QueryExecutionException(response.getErrorMessage)
           }
           driver.setMaxRows(maxRows)
 
           val results = shim.getDriverResults(driver)
+          CommandProcessorFactory.clean(conf)
           driver.close()
           results
 
