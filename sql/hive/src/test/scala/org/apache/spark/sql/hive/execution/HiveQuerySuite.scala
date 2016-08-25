@@ -866,7 +866,8 @@ class HiveQuerySuite extends HiveComparisonTest with SQLTestUtils with BeforeAnd
     val e = intercept[RuntimeException] {
       sql(s"ADD JAR $testJar")
     }
-    assert(e.getMessage.contains("java.net.UnknownHostException: nn1"))
+    e.printStackTrace()
+    assert(e.getMessage.contains("java.net.UnknownHostException: nn"))
   }
 
   test("ADD JAR command 2") {
