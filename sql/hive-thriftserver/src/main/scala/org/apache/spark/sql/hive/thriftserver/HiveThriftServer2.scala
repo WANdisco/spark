@@ -22,12 +22,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 import org.apache.commons.logging.LogFactory
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hive.conf.HiveConf
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars
 import org.apache.hive.service.cli.thrift.{ThriftBinaryCLIService, ThriftHttpCLIService}
-import org.apache.hive.service.server.HiveServer2
+import org.apache.hive.service.server.{HiveServer2, HiveServerServerOptionsProcessor}
 
 import org.apache.spark.SparkContext
 import org.apache.spark.annotation.DeveloperApi
@@ -79,7 +81,7 @@ object HiveThriftServer2 extends Logging {
 
   def main(args: Array[String]) {
     Utils.initDaemon(log)
-    val optionsProcessor = new HiveServer2.ServerOptionsProcessor("HiveThriftServer2")
+    val optionsProcessor = new HiveServerServerOptionsProcessor("HiveThriftServer2")
     optionsProcessor.parse(args)
 
     logInfo("Starting SparkContext")
