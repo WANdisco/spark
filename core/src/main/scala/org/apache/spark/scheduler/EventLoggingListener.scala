@@ -20,6 +20,7 @@ package org.apache.spark.scheduler
 import java.io._
 import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.util
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -27,6 +28,8 @@ import scala.collection.mutable.ArrayBuffer
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, FSDataOutputStream, Path}
 import org.apache.hadoop.fs.permission.FsPermission
+import org.apache.hadoop.hdfs.DFSOutputStream
+import org.apache.hadoop.hdfs.client.HdfsDataOutputStream.SyncFlag
 import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods._
 
@@ -140,7 +143,14 @@ private[spark] class EventLoggingListener(
     // scalastyle:on println
     if (flushLogger) {
       writer.foreach(_.flush())
-      hadoopDataStream.foreach(_.hflush())
+      hadoopDataStream.foreach(ds => {
+        if (ds.getWrappedStream.isInstanceOf[DFSOutputStream]) {
+          ds.getWrappedStream.asInstanceOf[DFSOutputStream].hsync(
+            util.EnumSet.of(SyncFlag.UPDATE_LENGTH))
+        } else {
+          ds.hflush()
+        }
+      })
     }
     if (testing) {
       loggedEvents += eventJson
