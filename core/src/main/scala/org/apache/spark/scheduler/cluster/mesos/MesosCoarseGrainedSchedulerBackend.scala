@@ -29,6 +29,7 @@ import scala.concurrent.Future
 import org.apache.mesos.Protos.{TaskInfo => MesosTaskInfo, _}
 
 import org.apache.spark.{SecurityManager, SparkContext, SparkException, TaskState}
+import org.apache.spark.internal.config
 import org.apache.spark.network.netty.SparkTransportConf
 import org.apache.spark.network.shuffle.mesos.MesosExternalShuffleClient
 import org.apache.spark.rpc.RpcEndpointAddress
@@ -132,7 +133,8 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       SparkTransportConf.fromSparkConf(conf, "shuffle"),
       securityManager,
       securityManager.isAuthenticationEnabled(),
-      securityManager.isSaslEncryptionEnabled())
+      securityManager.isSaslEncryptionEnabled(),
+      conf.get(config.SHUFFLE_REGISTRATION_TIMEOUT))
   }
 
   var nextMesosTaskId = 0
